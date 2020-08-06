@@ -2,6 +2,32 @@
 set -e
 
 clickhouse client -n <<-EOSQL
+
+    CREATE DATABASE  IF NOT EXISTS dictionaries;
+
+    CREATE DICTIONARY  IF NOT EXISTS dictionaries.protocols (
+        Proto UInt8,
+        Name String,
+        Description String
+    )
+    PRIMARY KEY Proto
+    LAYOUT(FLAT())
+    SOURCE (FILE(path '/var/lib/clickhouse/user_files/protocols.csv' format 'CSVWithNames'))
+    LIFETIME(3600);
+
+
+    CREATE DICTIONARY  IF NOT EXISTS dictionaries.interfaces (
+       RouterName String,
+       SamplerAddress  String,
+	IfIndex UInt16,
+       IfName String
+    )
+    PRIMARY KEY IfIndex
+    LAYOUT(FLAT())
+    SOURCE (FILE(path '/var/lib/clickhouse/user_files/interfaces.csv' format 'CSVWithNames'))
+    LIFETIME(3600);
+
+
     CREATE TABLE IF NOT EXISTS flows
     (
         TimeReceived UInt64,
@@ -16,6 +42,17 @@ clickhouse client -n <<-EOSQL
 
         SrcAS UInt32,
         DstAS UInt32,
+
+        InIf UInt32,
+        OutIf UInt32,
+
+        IPTos UInt32,
+        ForwardingStatus UInt32,
+        IPTTL UInt32,
+        TCPFlags UInt32,
+        IcmpType UInt32,
+        IcmpCode UInt32,
+        IPv6FlowLabel UInt32,
 
         EType UInt32,
         Proto UInt32,
@@ -48,6 +85,17 @@ clickhouse client -n <<-EOSQL
 
         SrcAS UInt32,
         DstAS UInt32,
+
+        InIf UInt32,
+        OutIf UInt32,
+
+        IPTos UInt32,
+        ForwardingStatus UInt32,
+        IPTTL UInt32,
+        TCPFlags UInt32,
+        IcmpType UInt32,
+        IcmpCode UInt32,
+        IPv6FlowLabel UInt32,
 
         EType UInt32,
         Proto UInt32,

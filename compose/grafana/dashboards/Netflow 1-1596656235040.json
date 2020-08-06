@@ -1,0 +1,338 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_CLICKHOUSE",
+      "label": "ClickHouse",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "vertamedia-clickhouse-datasource",
+      "pluginName": "ClickHouse"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "7.1.1"
+    },
+    {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "vertamedia-clickhouse-datasource",
+      "name": "ClickHouse",
+      "version": "2.0.5"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "iteration": 1596656195062,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "${DS_CLICKHOUSE}",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "7.1.1",
+      "targets": [
+        {
+          "database": "default",
+          "dateColDataType": "",
+          "dateLoading": false,
+          "dateTimeColDataType": "TimeFlowStart",
+          "dateTimeType": "DATETIME",
+          "datetimeLoading": false,
+          "extrapolate": false,
+          "format": "table",
+          "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+          "intervalFactor": 1,
+          "query": "SELECT\n    if(EType = 0x800 , IPv4NumToString(reinterpretAsUInt32(substring(reverse(SrcAddr), 13, 4))), IPv6NumToString(SrcAddr)) as srcip,\n    if(EType = 0x800 , IPv4NumToString(reinterpretAsUInt32(substring(reverse(DstAddr), 13, 4))), IPv6NumToString(DstAddr)) as dstip,\n    sum(Bytes * SamplingRate) AS bps\nFROM flows_raw\nWHERE\n    $timeFilter\n    AND IPv4StringToNum(dstip) BETWEEN IPv4CIDRToRange(toIPv4('8.8.0.0'), 16).1 AND IPv4CIDRToRange(toIPv4('8.8.0.0'), 16).2\nGROUP BY\n    srcip,\n    dstip\nORDER BY bps DESC\nLIMIT 10",
+          "rawQuery": "SELECT     if(EType = 0x800 , IPv4NumToString(reinterpretAsUInt32(substring(reverse(SrcAddr), 13, 4))), IPv6NumToString(SrcAddr)) as srcip,     if(EType = 0x800 , IPv4NumToString(reinterpretAsUInt32(substring(reverse(DstAddr), 13, 4))), IPv6NumToString(DstAddr)) as dstip,     sum(Bytes * SamplingRate) AS bps FROM flows_raw WHERE     TimeFlowStart >= toDateTime(1596535348)     AND IPv4StringToNum(dstip) BETWEEN IPv4CIDRToRange(toIPv4('8.8.0.0'), 16).1 AND IPv4CIDRToRange(toIPv4('8.8.0.0'), 16).2 GROUP BY     srcip,     dstip ORDER BY bps DESC LIMIT 10",
+          "refId": "A",
+          "round": "0s",
+          "table": "flows_raw",
+          "tableLoading": false
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Panel Title",
+      "type": "table"
+    },
+    {
+      "datasource": "${DS_CLICKHOUSE}",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "frameIndex": 0,
+        "showHeader": true
+      },
+      "pluginVersion": "7.1.1",
+      "targets": [
+        {
+          "database": "default",
+          "dateColDataType": "",
+          "dateLoading": false,
+          "dateTimeColDataType": "TimeFlowStart",
+          "dateTimeType": "DATETIME",
+          "datetimeLoading": false,
+          "extrapolate": true,
+          "format": "table",
+          "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+          "intervalFactor": 1,
+          "query": "SELECT\n    IF(startsWith(IPv6NumToString(SrcAddr), '959a'), IPv4NumToString(reinterpretAsUInt32(SrcAddr)), IPv6NumToString(SrcAddr)) AS SrcIP,\n    IF(startsWith(IPv6NumToString(DstAddr), '959a'), IPv4NumToString(reinterpretAsUInt32(DstAddr)), IPv6NumToString(DstAddr)) AS DstIP,\n    Sum(Bytes * 8 * 1000) AS bps,\n    Sum(Packets * 1000) AS pps\nFROM flows_raw\nWHERE $timeFilter\nGROUP BY SrcIP, DstIP\nORDER BY bps DESC\nLIMIT 10",
+          "rawQuery": "SELECT     IF(startsWith(IPv6NumToString(SrcAddr), '959a'), IPv4NumToString(reinterpretAsUInt32(SrcAddr)), IPv6NumToString(SrcAddr)) AS SrcIP,     IF(startsWith(IPv6NumToString(DstAddr), '959a'), IPv4NumToString(reinterpretAsUInt32(DstAddr)), IPv6NumToString(DstAddr)) AS DstIP,     Sum(Bytes * 8 * 1000) AS bps,     Sum(Packets * 1000) AS pps FROM flows_raw WHERE TimeFlowStart >= toDateTime(1596487940) GROUP BY SrcIP, DstIP ORDER BY bps DESC LIMIT 10",
+          "refId": "A",
+          "round": "0s",
+          "table": "flows_raw",
+          "tableLoading": false
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "All traffic by protocol",
+      "type": "table"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_CLICKHOUSE}",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "fill": 3,
+      "fillGradient": 7,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "hiddenSeries": false,
+      "id": 2,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": false,
+        "show": true,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pluginVersion": "7.1.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "database": "default",
+          "dateColDataType": "",
+          "dateLoading": false,
+          "dateTimeColDataType": "TimeFlowStart",
+          "dateTimeType": "DATETIME",
+          "datetimeLoading": false,
+          "extrapolate": true,
+          "format": "time_series",
+          "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+          "intervalFactor": 1,
+          "query": "SELECT\n    $timeSeries as t,\n    Proto,\n    Sum(Bytes * 8 * 1000)\nFROM $table\nWHERE $timeFilter\nGROUP BY\n    t,\n    Proto\nORDER BY t",
+          "rawQuery": "SELECT     (intDiv(toUInt32(TimeFlowStart), 15) * 15) * 1000 as t,     Proto,     Sum(Bytes * 8 * 1000) FROM default.flows_raw WHERE TimeFlowStart >= toDateTime(1596468166) GROUP BY     t,     Proto ORDER BY t",
+          "refId": "A",
+          "round": "0s",
+          "table": "flows_raw",
+          "tableLoading": false
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "All traffic by protocol",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "bps",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 26,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "8.8.8.8",
+          "value": "8.8.8.8"
+        },
+        "hide": 0,
+        "label": "Source Address",
+        "name": "src_addr",
+        "options": [
+          {
+            "selected": true,
+            "text": "8.8.8.8",
+            "value": "8.8.8.8"
+          }
+        ],
+        "query": "8.8.8.8",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "Netflow 1",
+  "uid": "R5F0694Gk",
+  "version": 5
+}

@@ -1,0 +1,143 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_CLICKHOUSE",
+      "label": "ClickHouse",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "vertamedia-clickhouse-datasource",
+      "pluginName": "ClickHouse"
+    }
+  ],
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "7.1.1"
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "vertamedia-clickhouse-datasource",
+      "name": "ClickHouse",
+      "version": "2.0.5"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "${DS_CLICKHOUSE}",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null,
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "7.1.1",
+      "targets": [
+        {
+          "database": "default",
+          "dateColDataType": "Date",
+          "dateLoading": false,
+          "dateTimeColDataType": "TimeReceived",
+          "dateTimeType": "DATETIME",
+          "datetimeLoading": false,
+          "extrapolate": true,
+          "format": "table",
+          "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
+          "hide": false,
+          "intervalFactor": 1,
+          "query": "WITH\n    dictGetString('dictionaries.interfaces', 'IfName', toUInt64(InIf)) AS InterfaceName \nSELECT \n    if(InterfaceName = '', toString(InIf), InterfaceName) || '/' || toString(InIf) || '/' || IPv4NumToString(reinterpretAsUInt32(substring(reverse(SamplerAddress), 13,4))) as InInterface ,\n    sum(Bytes * SamplingRate * 8) AS sumbps\nFROM $table\nWHERE $timeFilter\nGROUP BY InInterface\nORDER BY sumbps DESC",
+          "rawQuery": "WITH     dictGetString('dictionaries.interfaces', 'IfName', toUInt64(InIf)) AS InterfaceName  SELECT      if(InterfaceName = '', toString(InIf), InterfaceName) || '/' || toString(InIf) || '/' || IPv4NumToString(reinterpretAsUInt32(substring(reverse(SamplerAddress), 13,4))) as InInterface ,     sum(Bytes * SamplingRate * 8) AS sumbps FROM default.flows_raw WHERE Date BETWEEN toDate(1596501096) AND toDate(1596587496) AND TimeReceived BETWEEN toDateTime(1596501096) AND toDateTime(1596587496) GROUP BY InInterface ORDER BY sumbps DESC",
+          "refId": "A",
+          "round": "0s",
+          "table": "flows_raw",
+          "tableLoading": false
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Top Input Interface",
+      "type": "table"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 26,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "2020-08-04T00:31:36.477Z",
+    "to": "2020-08-05T00:31:36.477Z"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "Netflow 2",
+  "uid": "6Gh4l6VMk",
+  "version": 4
+}

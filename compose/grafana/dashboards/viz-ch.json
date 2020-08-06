@@ -2,7 +2,6 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:631",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -16,6 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
+  "id": 4,
   "links": [],
   "panels": [
     {
@@ -24,6 +24,13 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": "ClickHouse",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -47,10 +54,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -143,6 +148,12 @@
     {
       "columns": [],
       "datasource": "ClickHouse",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "100%",
       "gridPos": {
         "h": 9,
@@ -259,11 +270,17 @@
       ],
       "title": "Top source IPs",
       "transform": "table",
-      "type": "table"
+      "type": "table-old"
     },
     {
       "columns": [],
       "datasource": "ClickHouse",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "100%",
       "gridPos": {
         "h": 9,
@@ -277,12 +294,11 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 2,
+        "col": 1,
         "desc": true
       },
       "styles": [
         {
-          "$$hashKey": "object:1506",
           "alias": "Time",
           "align": "auto",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
@@ -290,7 +306,6 @@
           "type": "date"
         },
         {
-          "$$hashKey": "object:1507",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -308,7 +323,6 @@
           "unit": "none"
         },
         {
-          "$$hashKey": "object:1508",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -326,7 +340,6 @@
           "unit": "decbytes"
         },
         {
-          "$$hashKey": "object:1509",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -350,13 +363,14 @@
           "dateTimeColDataType": "TimeFlowStart",
           "dateTimeType": "DATETIME",
           "datetimeLoading": false,
+          "extrapolate": true,
           "format": "table",
           "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
           "group": [],
           "intervalFactor": 1,
           "metricColumn": "none",
-          "query": "SELECT\n    SrcPort as port,\n    sum(Bytes*SamplingRate) AS sumbytes\nFROM $table\nWHERE $timeFilter\nGROUP BY port\nORDER BY sumbytes DESC",
-          "rawQuery": "SELECT     toUInt64(toStartOfMinute(TimeFlowStart))*1000 as t,     sum(Bytes*SamplingRate) as sumbytes FROM default.flows_raw WHERE Date >= toDate(1585442922) AND TimeFlowStart >= toDateTime(1585442922) GROUP BY t ORDER BY t",
+          "query": "WITH\n    dictGetString('dictionaries.protocols', 'Name', toUInt64(Proto)) AS protoName \nSELECT \n    if(protoName = '', toString(Proto), protoName) || '/' || toString(SrcPort) as port,\n    sum(Bytes * SamplingRate) AS sumbytes\nFROM $table\nWHERE $timeFilter\nGROUP BY port\nORDER BY sumbytes DESC",
+          "rawQuery": "WITH     dictGetString('dictionaries.protocols', 'Name', toUInt64(Proto)) AS protoName  SELECT      if(protoName = '', toString(Proto), protoName) || '/' || toString(SrcPort) as port,     sum(Bytes * SamplingRate) AS sumbytes FROM default.flows_raw WHERE TimeFlowStart >= toDateTime(1596538067) GROUP BY port ORDER BY sumbytes DESC",
           "rawSql": "SELECT src_ip, count(*), sum(bytes) AS sumBytes FROM flows GROUP BY src_ip",
           "refId": "A",
           "round": "0s",
@@ -384,11 +398,17 @@
       ],
       "title": "Top source ports",
       "transform": "table",
-      "type": "table"
+      "type": "table-old"
     },
     {
       "columns": [],
       "datasource": "ClickHouse",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "100%",
       "gridPos": {
         "h": 9,
@@ -505,11 +525,17 @@
       ],
       "title": "Top destination IPs",
       "transform": "table",
-      "type": "table"
+      "type": "table-old"
     },
     {
       "columns": [],
       "datasource": "ClickHouse",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "100%",
       "gridPos": {
         "h": 9,
@@ -523,12 +549,11 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 2,
-        "desc": true
+        "col": 1,
+        "desc": false
       },
       "styles": [
         {
-          "$$hashKey": "object:1428",
           "alias": "Time",
           "align": "auto",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
@@ -536,7 +561,6 @@
           "type": "date"
         },
         {
-          "$$hashKey": "object:1429",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -554,7 +578,6 @@
           "unit": "none"
         },
         {
-          "$$hashKey": "object:1430",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -572,7 +595,6 @@
           "unit": "decbytes"
         },
         {
-          "$$hashKey": "object:1431",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -596,13 +618,14 @@
           "dateTimeColDataType": "TimeFlowStart",
           "dateTimeType": "DATETIME",
           "datetimeLoading": false,
+          "extrapolate": true,
           "format": "table",
           "formattedQuery": "SELECT $timeSeries as t, count() FROM $table WHERE $timeFilter GROUP BY t ORDER BY t",
           "group": [],
           "intervalFactor": 1,
           "metricColumn": "none",
-          "query": "SELECT\n    DstPort as port,\n    sum(Bytes*SamplingRate) AS sumbytes\nFROM $table\nWHERE $timeFilter\nGROUP BY port\nORDER BY sumbytes DESC",
-          "rawQuery": "SELECT     toUInt64(toStartOfMinute(TimeFlowStart))*1000 as t,     sum(Bytes*SamplingRate) as sumbytes FROM default.flows_raw WHERE Date >= toDate(1585442721) AND TimeFlowStart >= toDateTime(1585442721) GROUP BY t ORDER BY t",
+          "query": "WITH dictGetString('dictionaries.protocols', 'Name', toUInt64(Proto)) AS protoName\nSELECT\n    if(protoName = '', toString(Proto), protoName) || '/' || toString(DstPort) as port,\n    sum(Bytes*SamplingRate) AS sumbytes\nFROM $table\nWHERE $timeFilter\nGROUP BY port\nORDER BY sumbytes DESC",
+          "rawQuery": "WITH dictGetString('dictionaries.protocols', 'Name', toUInt64(Proto)) AS protoName SELECT     if(protoName = '', toString(Proto), protoName) || '/' || toString(DstPort) as port,     sum(Bytes*SamplingRate) AS sumbytes FROM default.flows_raw WHERE TimeFlowStart >= toDateTime(1596538186) GROUP BY port ORDER BY sumbytes DESC",
           "rawSql": "SELECT src_ip, count(*), sum(bytes) AS sumBytes FROM flows GROUP BY src_ip",
           "refId": "A",
           "round": "0s",
@@ -630,11 +653,11 @@
       ],
       "title": "Top destination ports",
       "transform": "table",
-      "type": "table"
+      "type": "table-old"
     }
   ],
   "refresh": false,
-  "schemaVersion": 22,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -646,7 +669,6 @@
   },
   "timepicker": {
     "refresh_intervals": [
-      "5s",
       "10s",
       "30s",
       "1m",
@@ -670,10 +692,8 @@
     ]
   },
   "timezone": "",
-  "title": "Traffic (ClickHouse)",
-  "uid": "tkNEAd9Zk",
-  "variables": {
-    "list": []
-  },
+  "title": "Traffic (ClickHouse) Copy",
+  "uid": "_qGVpe4Gk",
   "version": 1
 }
+
